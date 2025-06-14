@@ -3,8 +3,8 @@ import * as React from "react";
 import { X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Chat states: 'idle' | 'loading' | 'summary' | 'error' | 'custom-question'
-type ChatState = "idle" | "loading" | "summary" | "error" | "custom-question";
+// Chat states: 'idle' | 'loading' | 'summary' | 'error'
+type ChatState = "idle" | "loading" | "summary" | "error";
 
 const demoSummary =
   "In the last minute, Jordan spoke about implementing immersive theater layouts, how users interact with the chat feature, and detailed requirements for the ‘Catch Me’ experience.";
@@ -18,13 +18,11 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
   const [state, setState] = React.useState<ChatState>("idle");
   const [summary, setSummary] = React.useState("");
   const [question, setQuestion] = React.useState("");
-  const [showCustomInput, setShowCustomInput] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   // Called when user requests a recap (entry into sidebar)
   const handleRecap = async () => {
     setState("loading");
-    setShowCustomInput(false);
     setSummary("");
     setTimeout(() => {
       setSummary(demoSummary);
@@ -35,33 +33,35 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
   // For "Simplify", "Reiterate", "Elaborate"
   const askAI = (type: "simplify" | "reiterate" | "elaborate") => {
     setState("loading");
-    setShowCustomInput(false);
     setTimeout(() => {
       let txt = "";
-      if (type === "simplify") txt = "Here's a simpler version: The last minute covered how the host explained the key UI features and how the recap button works.";
-      if (type === "reiterate") txt = "Certainly! Jordan reviewed the main interface layout, the private chat bubble for recaps, and audience privacy.";
-      if (type === "elaborate") txt = "Here's a more detailed explanation: The presenter broke down the user interface for immersive theater, highlighting catch-up features and the recap flow in granular steps.";
+      if (type === "simplify")
+        txt =
+          "Here's a simpler version: The last minute covered how the host explained the key UI features and how the recap button works.";
+      if (type === "reiterate")
+        txt =
+          "Certainly! Jordan reviewed the main interface layout, the private chat bubble for recaps, and audience privacy.";
+      if (type === "elaborate")
+        txt =
+          "Here's a more detailed explanation: The presenter broke down the user interface for immersive theater, highlighting catch-up features and the recap flow in granular steps.";
       setSummary(txt);
       setState("summary");
     }, 1000);
   };
 
-  // Custom question show input (on button click)
-  const handleCustomButtonClick = () => {
-    setShowCustomInput(true);
-    setState("custom-question");
-    setSummary("");
+  // 'I'm wondering about...' button behavior
+  const handleWonderingClick = () => {
+    setQuestion("I'm wondering about");
     setTimeout(() => {
       if (inputRef.current) inputRef.current.focus();
     }, 120);
   };
 
-  // Custom question submit
+  // Chat input submission
   const handleCustomQuestion = (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) return;
     setState("loading");
-    setShowCustomInput(false);
     setSummary("");
     setTimeout(() => {
       setSummary(
@@ -118,10 +118,9 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
       </div>
       {/* Body */}
       <div className="flex-auto px-6 pb-4 overflow-y-auto min-h-16 flex flex-col justify-start">
-        {/* Main button set: show only when not loading and no summary or error */}
-        {(state === "summary" || state === "idle" || state === "custom-question" || state === "error") && !showCustomInput && (
-          <div className="flex flex-col gap-4 mt-8">
-            <div className="flex gap-4">
+        {(state === "summary" || state === "idle" || state === "error") && (
+          <div className="flex flex-col gap-6 mt-8">
+            <div className="flex gap-6">
               <Button
                 variant="outline"
                 size="sm"
@@ -151,7 +150,7 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
               variant="outline"
               size="default"
               className="mt-2 border-zinc-600 bg-zinc-800 text-zinc-100 text-sm font-semibold py-2 italic transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-indigo-500/80 hover:to-violet-400/80 hover:border-indigo-400"
-              onClick={handleCustomButtonClick}
+              onClick={handleWonderingClick}
             >
               I&apos;m wondering about...
             </Button>
@@ -174,8 +173,8 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
         )}
       </div>
 
-      {/* Custom question input bar pinned to bottom */}
-      {showCustomInput && state === "custom-question" && (
+      {/* Chat input bar pinned to bottom, always visible except when loading */}
+      {state !== "loading" && (
         <form
           className="flex flex-row items-center gap-2 px-6 py-4 border-t border-zinc-800 bg-zinc-900"
           onSubmit={handleCustomQuestion}
