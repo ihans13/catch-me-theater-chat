@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -91,8 +90,8 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
       </div>
       {/* Body */}
       <div className="flex-auto px-6 pb-4 overflow-y-auto min-h-16 flex flex-col justify-start">
-        <div className="flex flex-col gap-6 mt-8">
-          <div className="flex gap-3"> {/* Reduced gap between buttons */}
+        <div className="flex flex-col gap-2 mt-8">
+          <div className="flex gap-3">
             <Button
               variant="outline"
               size="sm"
@@ -121,7 +120,7 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
           <Button
             variant="outline"
             size="sm"
-            className={consistentButton + " mt-2"}
+            className={consistentButton + " mt-1"}
             onClick={handleWonderingClick}
           >
             I&apos;m wondering about...
