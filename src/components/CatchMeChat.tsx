@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { X, Sparkles, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -158,14 +157,15 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
               className={`
                 max-w-[70%]
                 px-4 py-2 text-sm
+                rounded-[2rem]
                 ${msg.role === "user"
-                  ? "self-start bg-gradient-to-br from-zinc-800 to-zinc-900 border border-indigo-400/30"
-                  : "self-end bg-gradient-to-br from-indigo-600/80 to-purple-600/80 border border-indigo-400/60 shadow-md"
+                  ? "self-start bg-gradient-to-br from-indigo-600/80 to-purple-600/80 border border-indigo-400/60 shadow-md text-white"
+                  : "self-end bg-zinc-800 border border-zinc-700 shadow-md text-zinc-300"
                 }
               `}
               style={{
-                borderRadius: "1.4rem",
-                color: "#A1A1AA", // Tailwind zinc-400
+                // All chat bubbles extra rounded
+                borderRadius: "2rem",
               }}
             >
               {msg.content}
@@ -175,12 +175,12 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
             <div
               className="
                 self-end max-w-[70%]
-                rounded-2xl bg-gradient-to-br from-indigo-600/80 to-purple-600/80
+                rounded-[2rem] bg-gradient-to-br from-indigo-600/80 to-purple-600/80
                 border border-indigo-400/60 text-zinc-400
                 px-4 py-2 text-sm
                 shadow-md
               "
-              style={{ borderRadius: "1.2rem" }}
+              style={{ borderRadius: "2rem" }}
             >
               {demoSummary}
             </div>
