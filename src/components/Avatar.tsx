@@ -22,7 +22,7 @@ export default function Avatar({ name, src, size = "md", muted }: AvatarProps) {
       </div>
       <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/70 rounded text-white text-xs font-medium flex items-center gap-1 shadow">
         {name}
-        {muted ? <MicOff size={14} className="text-red-400 ml-1" title="Muted" /> : null}
+        {muted ? <MicOff size={14} className="text-red-400 ml-1" /> : null}
       </div>
     </div>
   );

@@ -3,6 +3,15 @@ import * as React from "react";
 import { Loader2, Sparkles, MessageSquare, CornerDownLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose
+} from "@/components/ui/drawer";
 
 // Chat states: 'idle' | 'loading' | 'summary' | 'error'
 type ChatState = "idle" | "loading" | "summary" | "error";
@@ -15,7 +24,7 @@ export default function CatchMeChat() {
   const [state, setState] = React.useState<ChatState>("idle");
   const [summary, setSummary] = React.useState("");
   const [question, setQuestion] = React.useState("");
-  const chatRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   // Called when user requests a recap
   const handleRecap = async () => {
@@ -55,7 +64,7 @@ export default function CatchMeChat() {
   };
 
   // Close/collapse with fade-out animation
-  const handleClose = () => {
+  const handleDrawerClose = () => {
     setOpen(false);
     setTimeout(() => {
       setState("idle");
@@ -63,63 +72,53 @@ export default function CatchMeChat() {
     }, 200); // matches CSS transition
   };
 
-  // Focus input when opened
+  // Focus input when opened and ready for question
   React.useEffect(() => {
-    if (open && state === "summary" && chatRef.current) {
-      chatRef.current.focus();
+    if (open && state === "summary" && inputRef.current) {
+      inputRef.current.focus();
     }
   }, [open, state]);
 
   return (
     <>
-      {/* Collapsed Recap Bubble */}
-      {!open && (
-        <button
-          type="button"
-          onClick={handleRecap}
-          className="
-            fixed bottom-8 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-violet-500
-            text-white px-7 py-3 rounded-full shadow-xl flex items-center
-            font-semibold text-base border-2 border-indigo-400
-            hover:scale-105 active:scale-95 transition-all duration-200
-            z-40 animate-fade-in cursor-pointer
-          "
-        >
-          <Sparkles className="mr-2 animate-pulse" size={22} />
-          Need a recap?
-        </button>
-      )}
-
-      {/* Expanded Recap Chat */}
-      <div
-        className={cn(
-          "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-[360px] max-w-full pointer-events-none",
-          open ? "animate-fade-in pointer-events-auto" : "invisible pointer-events-none"
-        )}
-      >
-        <div
-          className={cn(
-            "bg-[#151525] border border-indigo-700 rounded-2xl shadow-2xl flex flex-col items-stretch gap-0",
-            "transition-transform duration-200",
-            open ? "scale-100 opacity-100" : "scale-95 opacity-0",
-            "min-h-[120px]"
-          )}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 pt-4 pb-1">
-            <div className="flex items-center gap-2 text-indigo-300 font-semibold text-lg">
-              <MessageSquare className="text-indigo-400" size={20} />
-              CatchMe Recap
+      {/* Bottom right icon to open recap drawer */}
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerTrigger asChild>
+          <button
+            type="button"
+            onClick={handleRecap}
+            className="
+              fixed bottom-8 right-8 bg-gradient-to-r from-indigo-600 to-violet-500
+              text-white p-4 rounded-full shadow-xl flex items-center justify-center
+              border-2 border-indigo-400
+              hover:scale-105 active:scale-95 transition-all duration-200
+              z-50 cursor-pointer
+            "
+            aria-label="Need a recap?"
+          >
+            <Sparkles size={28} className="animate-pulse" />
+          </button>
+        </DrawerTrigger>
+        <DrawerContent className="sm:max-w-[420px] w-full">
+          <DrawerHeader>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-indigo-400 font-semibold text-lg">
+                <MessageSquare className="text-indigo-400" size={22} />
+                CatchMe Recap
+              </div>
+              <DrawerClose asChild>
+                <button
+                  aria-label="Close"
+                  className="text-indigo-300 hover:text-red-400 p-1 rounded transition"
+                  onClick={handleDrawerClose}
+                  type="button"
+                >
+                  <X size={22} />
+                </button>
+              </DrawerClose>
             </div>
-            <button
-              onClick={handleClose}
-              aria-label="Close"
-              className="text-indigo-200 hover:text-red-400 p-1 rounded transition"
-            >
-              <X size={20} />
-            </button>
-          </div>
-          {/* Content area */}
+          </DrawerHeader>
+
           <div className="px-4 py-3 text-white min-h-[64px] text-base">
             {state === "loading" && (
               <div className="flex items-center gap-2 text-indigo-200">
@@ -141,7 +140,7 @@ export default function CatchMeChat() {
               </span>
             )}
           </div>
-          {/* Quick actions & Input */}
+
           {(state === "summary" || state === "error") && (
             <div className="flex flex-col gap-1 pb-3 px-3">
               <div className="flex gap-1 justify-between">
@@ -157,7 +156,7 @@ export default function CatchMeChat() {
               </div>
               <form className="flex w-full mt-2" onSubmit={handleCustomQuestion}>
                 <input
-                  ref={chatRef}
+                  ref={inputRef}
                   value={question}
                   onChange={e => setQuestion(e.target.value)}
                   disabled={state === "loading"}
@@ -175,8 +174,8 @@ export default function CatchMeChat() {
               </form>
             </div>
           )}
-        </div>
-      </div>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }
