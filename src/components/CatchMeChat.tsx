@@ -1,9 +1,16 @@
+
 import * as React from "react";
 import { X, Sparkles, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Chat states: 'idle' | 'loading' | 'summary' | 'error'
 type ChatState = "idle" | "loading" | "summary" | "error";
+
+// Each chat message contains a role and content
+type Message = {
+  role: "user" | "bot";
+  content: string;
+};
 
 const demoSummary =
   "In the last minute, Jordan spoke about implementing immersive theater layouts, how users interact with the chat feature, and detailed requirements for the ‘Catch Me’ experience.";
@@ -16,15 +23,16 @@ interface CatchMeChatProps {
 export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
   const [state, setState] = React.useState<ChatState>("idle");
   const [question, setQuestion] = React.useState("");
-  const [customQuestions, setCustomQuestions] = React.useState<string[]>([]);
+  const [messages, setMessages] = React.useState<Message[]>([]);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   // Called when user requests a recap (entry into sidebar)
   const handleRecap = async () => {
     setState("idle");
+    setMessages([]);
   };
 
-  // For "Simplify", "Reiterate", "Elaborate"
+  // For "Simplify", "Reiterate", "Elaborate" (not changed here)
   const askAI = (type: "simplify" | "reiterate" | "elaborate") => {
     setState("idle");
   };
@@ -37,13 +45,30 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
     }, 120);
   };
 
-  // Chat input submission - stores message and clears input
+  // Handle chat input submission
   const handleCustomQuestion = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!question.trim()) return;
-    setCustomQuestions(prev => [...prev, question.trim()]);
+    const q = question.trim();
+    if (!q) return;
+    // Add user's message
+    setMessages(prev => [...prev, { role: "user", content: q }]);
     setQuestion("");
+    // Simulate bot reply
+    setTimeout(() => {
+      setMessages(prev => [
+        ...prev,
+        {
+          role: "bot",
+          content: getBotReply(q)
+        }
+      ]);
+    }, 600);
   };
+
+  // Generate a placeholder bot response
+  function getBotReply(userMessage: string): string {
+    return `You said: "${userMessage}". (The bot feature is a demo. In production, this would be a helpful AI response.)`;
+  }
 
   React.useEffect(() => {
     if (open) {
@@ -55,7 +80,6 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
   if (!open) return null;
 
   // Consistent button style for all action buttons
-  // text-base font-medium, no color overrides, bg/bg hover handled as before
   const consistentButton =
     "flex-1 text-base font-medium rounded-md border-zinc-600 bg-zinc-800 text-zinc-100 transition-all duration-200 hover:shadow-lg hover:bg-gradient-to-r hover:from-indigo-500/80 hover:to-violet-400/80 hover:border-indigo-400";
 
@@ -126,28 +150,31 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
             I&apos;m wondering about...
           </Button>
         </div>
-        {/* User's and chatbot's messages */}
+        {/* All chat messages */}
         <div className="mt-8 flex flex-col gap-3">
-          {/* User messages (left) */}
-          {customQuestions.map((q, idx) => (
+          {messages.map((msg, idx) => (
             <div
-              key={`user-${idx}`}
-              className="
-                self-start max-w-[70%]
-                rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-900
-                border border-indigo-400/30 text-zinc-400
+              key={idx}
+              className={`
+                max-w-[70%]
                 px-4 py-2 text-sm
-              "
-              style={{ borderRadius: "1.2rem" }}
+                ${msg.role === "user"
+                  ? "self-start bg-gradient-to-br from-zinc-800 to-zinc-900 border border-indigo-400/30"
+                  : "self-end bg-gradient-to-br from-indigo-600/80 to-purple-600/80 border border-indigo-400/60 shadow-md"
+                }
+              `}
+              style={{
+                borderRadius: "1.4rem",
+                color: "#A1A1AA", // Tailwind zinc-400
+              }}
             >
-              {q}
+              {msg.content}
             </div>
           ))}
-          {/* Chatbot message (right) */}
           {state === "summary" && (
             <div
               className="
-                self-end max-w-[70%] 
+                self-end max-w-[70%]
                 rounded-2xl bg-gradient-to-br from-indigo-600/80 to-purple-600/80
                 border border-indigo-400/60 text-zinc-400
                 px-4 py-2 text-sm
