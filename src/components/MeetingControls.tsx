@@ -23,15 +23,15 @@ export default function MeetingControls() {
   const controls = [
     {
       key: "video",
-      icon: <Video className={videoOn ? "text-red-500" : "text-white"} size={28}/>,
-      action: () => setVideoOn((v) => !v),
+      icon: <Video className={videoOn ? "text-red-500" : "text-white"} size={28} />,
+      action: () => alert("Not implemented"),
       extra: <ChevronUp size={14} className="ml-1 text-white opacity-60" />,
       active: videoOn,
     },
     {
       key: "mic",
       icon: <Mic className={micOn ? "text-red-500" : "text-white"} size={28} />,
-      action: () => setMicOn((v) => !v),
+      action: () => alert("Not implemented"),
       extra: <ChevronUp size={14} className="ml-1 text-white opacity-60" />,
       active: micOn,
     },
