@@ -120,7 +120,7 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
           <Button
             variant="outline"
             size="sm"
-            className={consistentButton + " mt-1"}
+            className={`${consistentButton} mt-1 py-2`}
             onClick={handleWonderingClick}
           >
             I&apos;m wondering about...
