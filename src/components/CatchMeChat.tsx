@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,37 +15,19 @@ interface CatchMeChatProps {
 
 export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
   const [state, setState] = React.useState<ChatState>("idle");
-  const [summary, setSummary] = React.useState("");
   const [question, setQuestion] = React.useState("");
+  const [customQuestions, setCustomQuestions] = React.useState<string[]>([]);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   // Called when user requests a recap (entry into sidebar)
   const handleRecap = async () => {
-    setState("loading");
-    setSummary("");
-    setTimeout(() => {
-      setSummary(demoSummary);
-      setState("summary");
-    }, 1200);
+    setState("idle");
   };
 
   // For "Simplify", "Reiterate", "Elaborate"
   const askAI = (type: "simplify" | "reiterate" | "elaborate") => {
-    setState("loading");
-    setTimeout(() => {
-      let txt = "";
-      if (type === "simplify")
-        txt =
-          "Here's a simpler version: The last minute covered how the host explained the key UI features and how the recap button works.";
-      if (type === "reiterate")
-        txt =
-          "Certainly! Jordan reviewed the main interface layout, the private chat bubble for recaps, and audience privacy.";
-      if (type === "elaborate")
-        txt =
-          "Here's a more detailed explanation: The presenter broke down the user interface for immersive theater, highlighting catch-up features and the recap flow in granular steps.";
-      setSummary(txt);
-      setState("summary");
-    }, 1000);
+    // No longer needed, so we just set state to idle
+    setState("idle");
   };
 
   // 'I'm wondering about...' button behavior
@@ -57,23 +38,16 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
     }, 120);
   };
 
-  // Chat input submission
+  // Chat input submission - stores message and clears input
   const handleCustomQuestion = (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) return;
-    setState("loading");
-    setSummary("");
-    setTimeout(() => {
-      setSummary(
-        "Here's a detailed answer to your question: We'll make sure the recap is context-aware and easy to follow!"
-      );
-      setState("summary");
-    }, 1400);
+    setCustomQuestions(prev => [...prev, question.trim()]);
     setQuestion("");
   };
 
   React.useEffect(() => {
-    if (open && state === "idle") {
+    if (open) {
       handleRecap();
     }
     // eslint-disable-next-line
@@ -118,89 +92,82 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
       </div>
       {/* Body */}
       <div className="flex-auto px-6 pb-4 overflow-y-auto min-h-16 flex flex-col justify-start">
-        {(state === "summary" || state === "idle" || state === "error") && (
-          <div className="flex flex-col gap-6 mt-8">
-            <div className="flex gap-6">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => askAI("simplify")}
-                className={`${buttonBase} ${lavenderGradient}`}
-              >
-                Simplify
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => askAI("reiterate")}
-                className={`${buttonBase} ${lavenderGradient}`}
-              >
-                Reiterate
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => askAI("elaborate")}
-                className={`${buttonBase} ${lavenderGradient}`}
-              >
-                Elaborate
-              </Button>
-            </div>
+        <div className="flex flex-col gap-6 mt-8">
+          <div className="flex gap-8"> {/* Increased gap between buttons */}
             <Button
               variant="outline"
-              size="default"
-              className="mt-2 border-zinc-600 bg-zinc-800 text-zinc-100 text-sm font-semibold py-2 italic transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-indigo-500/80 hover:to-violet-400/80 hover:border-indigo-400"
-              onClick={handleWonderingClick}
+              size="sm"
+              onClick={() => askAI("simplify")}
+              className={`${buttonBase} ${lavenderGradient}`}
             >
-              I&apos;m wondering about...
+              Simplify
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => askAI("reiterate")}
+              className={`${buttonBase} ${lavenderGradient}`}
+            >
+              Reiterate
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => askAI("elaborate")}
+              className={`${buttonBase} ${lavenderGradient}`}
+            >
+              Elaborate
             </Button>
           </div>
-        )}
-
-        {/* Loading state */}
-        {state === "loading" && (
-          <div className="text-indigo-300 mt-6">Generating a recap...</div>
-        )}
-
-        {/* Show summary only after a button is clicked and summary state is set */}
-        {state === "summary" && summary && (
-          <span className="text-zinc-100 animate-fade-in mt-8">{summary}</span>
-        )}
-        {state === "error" && (
-          <span className="text-red-300 mt-8">
-            Sorry, couldn’t hear that—try again in a few seconds.
-          </span>
+          <Button
+            variant="outline"
+            size="default"
+            className="mt-2 border-zinc-600 bg-zinc-800 text-zinc-100 text-sm font-semibold py-2 italic transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-indigo-500/80 hover:to-violet-400/80 hover:border-indigo-400"
+            onClick={handleWonderingClick}
+          >
+            I&apos;m wondering about...
+          </Button>
+        </div>
+        {/* User's custom questions appear here */}
+        {customQuestions.length > 0 && (
+          <div className="mt-8 flex flex-col gap-3">
+            {customQuestions.map((q, idx) => (
+              <div
+                key={idx}
+                className="rounded bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-100 px-4 py-2 border border-indigo-400/30 text-sm"
+              >
+                {q}
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Chat input bar pinned to bottom, always visible except when loading */}
-      {state !== "loading" && (
-        <form
-          className="flex flex-row items-center gap-2 px-6 py-4 border-t border-zinc-800 bg-zinc-900"
-          onSubmit={handleCustomQuestion}
-          style={{ boxShadow: "0 -2px 16px 2px rgba(80,55,180,0.10)" }}
+      {/* Chat input bar pinned to bottom, always visible */}
+      <form
+        className="flex flex-row items-center gap-2 px-6 py-4 border-t border-zinc-800 bg-zinc-900"
+        onSubmit={handleCustomQuestion}
+        style={{ boxShadow: "0 -2px 16px 2px rgba(80,55,180,0.10)" }}
+      >
+        <input
+          ref={inputRef}
+          value={question}
+          onChange={e => setQuestion(e.target.value)}
+          placeholder="Type your question…"
+          className="flex-1 rounded-l-md bg-zinc-900 px-3 py-2 text-white placeholder:text-zinc-400 outline-none border border-zinc-800 border-r-0 focus:ring-2 focus:ring-indigo-500 text-sm"
+        />
+        <button
+          type="submit"
+          disabled={!question.trim()}
+          className="rounded-r-md px-5 bg-indigo-500 hover:bg-indigo-600 text-white font-bold transition h-10"
+          aria-label="Send"
+          style={{
+            boxShadow: "0 2px 8px 1px rgba(99,102,241,0.16)", // lavender shadow
+          }}
         >
-          <input
-            ref={inputRef}
-            value={question}
-            onChange={e => setQuestion(e.target.value)}
-            disabled={state === "loading"}
-            placeholder="Type your question…"
-            className="flex-1 rounded-l-md bg-zinc-900 px-3 py-2 text-white placeholder:text-zinc-400 outline-none border border-zinc-800 border-r-0 focus:ring-2 focus:ring-indigo-500 text-sm"
-          />
-          <button
-            type="submit"
-            disabled={!question.trim() || state === "loading"}
-            className="rounded-r-md px-5 bg-indigo-500 hover:bg-indigo-600 text-white font-bold transition h-10"
-            aria-label="Send"
-            style={{
-              boxShadow: "0 2px 8px 1px rgba(99,102,241,0.16)", // lavender shadow
-            }}
-          >
-            Send
-          </button>
-        </form>
-      )}
+          Send
+        </button>
+      </form>
     </aside>
   );
 }
