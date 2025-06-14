@@ -25,6 +25,7 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
   const handleRecap = async () => {
     setState("loading");
     setShowCustomInput(false);
+    setSummary("");
     setTimeout(() => {
       setSummary(demoSummary);
       setState("summary");
@@ -50,7 +51,6 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
     setShowCustomInput(true);
     setState("custom-question");
     setSummary("");
-    // Focus input after render
     setTimeout(() => {
       if (inputRef.current) inputRef.current.focus();
     }, 120);
@@ -76,11 +76,16 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
     if (open && state === "idle") {
       handleRecap();
     }
-    // Do not focus input unless custom input is visible
     // eslint-disable-next-line
   }, [open]);
 
   if (!open) return null;
+
+  // Custom lavender gradient hover overlay for buttons
+  const lavenderGradient =
+    "hover:shadow-lg hover:bg-gradient-to-r hover:from-indigo-500/80 hover:to-violet-400/80 hover:border-indigo-400 transition-all duration-200";
+  const buttonBase =
+    "text-xs flex-1 border-zinc-600 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 relative";
 
   return (
     <aside
@@ -112,30 +117,32 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
         </Button>
       </div>
       {/* Body */}
-      <div className="flex-1 px-6 pb-4 overflow-y-auto min-h-16 flex flex-col justify-start">
-        {state === "loading" && (
-          <div className="text-indigo-300 mt-6">Generating a recap...</div>
-        )}
-
-        {/* Button set: only show when not loading and not summary */}
+      <div className="flex-auto px-6 pb-4 overflow-y-auto min-h-16 flex flex-col justify-start">
+        {/* Main button set: show only when not loading and no summary or error */}
         {(state === "summary" || state === "idle" || state === "custom-question" || state === "error") && !showCustomInput && (
-          <div className="flex flex-col gap-2 mt-8">
-            <div className="flex gap-1">
-              <Button variant="outline" size="sm"
+          <div className="flex flex-col gap-4 mt-8">
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => askAI("simplify")}
-                className="text-xs flex-1 border-zinc-600 bg-zinc-800 hover:bg-zinc-700 text-zinc-100"
+                className={`${buttonBase} ${lavenderGradient}`}
               >
                 Simplify
               </Button>
-              <Button variant="outline" size="sm"
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => askAI("reiterate")}
-                className="text-xs flex-1 border-zinc-600 bg-zinc-800 hover:bg-zinc-700 text-zinc-100"
+                className={`${buttonBase} ${lavenderGradient}`}
               >
                 Reiterate
               </Button>
-              <Button variant="outline" size="sm"
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => askAI("elaborate")}
-                className="text-xs flex-1 border-zinc-600 bg-zinc-800 hover:bg-zinc-700 text-zinc-100"
+                className={`${buttonBase} ${lavenderGradient}`}
               >
                 Elaborate
               </Button>
@@ -143,40 +150,20 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
             <Button
               variant="outline"
               size="default"
-              className="mt-2 border-zinc-600 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-sm font-semibold py-2"
+              className="mt-2 border-zinc-600 bg-zinc-800 text-zinc-100 text-sm font-semibold py-2 italic transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-indigo-500/80 hover:to-violet-400/80 hover:border-indigo-400"
               onClick={handleCustomButtonClick}
             >
-              I'm wondering about...
+              I&apos;m wondering about...
             </Button>
           </div>
         )}
 
-        {/* Custom question input row */}
-        {showCustomInput && state === "custom-question" && (
-          <form
-            className="flex flex-row items-center gap-2 mt-8"
-            onSubmit={handleCustomQuestion}
-          >
-            <input
-              ref={inputRef}
-              value={question}
-              onChange={e => setQuestion(e.target.value)}
-              disabled={state === "loading"}
-              placeholder="Type your question…"
-              className="flex-1 rounded-l-md bg-zinc-900 px-3 py-2 text-white placeholder:text-zinc-400 outline-none border border-zinc-800 border-r-0 focus:ring-2 focus:ring-indigo-500 text-sm"
-            />
-            <button
-              type="submit"
-              disabled={!question.trim() || state === "loading"}
-              className="rounded-r-md px-5 bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition h-10"
-              aria-label="Send"
-            >
-              Send
-            </button>
-          </form>
+        {/* Loading state */}
+        {state === "loading" && (
+          <div className="text-indigo-300 mt-6">Generating a recap...</div>
         )}
 
-        {/* Summary displays only after a button is used */}
+        {/* Show summary only after a button is clicked and summary state is set */}
         {state === "summary" && summary && (
           <span className="text-zinc-100 animate-fade-in mt-8">{summary}</span>
         )}
@@ -186,6 +173,35 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
           </span>
         )}
       </div>
+
+      {/* Custom question input bar pinned to bottom */}
+      {showCustomInput && state === "custom-question" && (
+        <form
+          className="flex flex-row items-center gap-2 px-6 py-4 border-t border-zinc-800 bg-zinc-900"
+          onSubmit={handleCustomQuestion}
+          style={{ boxShadow: "0 -2px 16px 2px rgba(80,55,180,0.10)" }}
+        >
+          <input
+            ref={inputRef}
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
+            disabled={state === "loading"}
+            placeholder="Type your question…"
+            className="flex-1 rounded-l-md bg-zinc-900 px-3 py-2 text-white placeholder:text-zinc-400 outline-none border border-zinc-800 border-r-0 focus:ring-2 focus:ring-indigo-500 text-sm"
+          />
+          <button
+            type="submit"
+            disabled={!question.trim() || state === "loading"}
+            className="rounded-r-md px-5 bg-indigo-500 hover:bg-indigo-600 text-white font-bold transition h-10"
+            aria-label="Send"
+            style={{
+              boxShadow: "0 2px 8px 1px rgba(99,102,241,0.16)", // lavender shadow
+            }}
+          >
+            Send
+          </button>
+        </form>
+      )}
     </aside>
   );
 }
