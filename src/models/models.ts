@@ -69,6 +69,20 @@ export interface PromptResponse {
 export interface MeetingSession {
     id: string;
     started: number;
+
+    /* rolling transcript cache (unchanged) */
     transcript: TranscriptCache;
+
+    /* simple lookup of button requests → responses */
     promptHistory: Record<string, PromptResponse>;
+
+    /* ⬅️ NEW: full back-and-forth chat with the assistant */
+    chatLog: ChatMessage[];
+}
+
+export type ChatRole = "user" | "assistant";
+
+export interface ChatMessage {
+    role: ChatRole;
+    content: string;
 }

@@ -4,37 +4,53 @@ import {
     TranscriptCache,
     PromptRequest,
     PromptResponse,
+    ChatMessage,
 } from "@/models/models";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type State = MeetingSession | null;
+/* 10-second dummy text so the first button has material */
+const seed: TranscriptChunk = {
+    ts: Date.now(),
+    text:
+        "Welcome! In the last ten seconds the host introduced the immersive " +
+        "layout and showed how the recap sidebar helps late joiners catch up.",
+};
 
-const initialState: State = null;
+const makeSession = (id = "initial"): MeetingSession => {
+    const cache = new TranscriptCache();
+    cache.add(seed);
+    return {
+        id,
+        started: Date.now(),
+        transcript: cache,
+        promptHistory: {},
+        chatLog: [],
+    };
+};
+
+type State = MeetingSession | null;
+const initialState: State = makeSession();
 
 const meetingSlice = createSlice({
     name: "meeting",
     initialState,
-    reducers: {
-        createSession: (_state, action: PayloadAction<string>) => ({
-            id: action.payload,
-            started: Date.now(),
-            transcript: new TranscriptCache(),
-            promptHistory: {},
-        }),
 
+    reducers: {
+        createSession: (_s, a: PayloadAction<string>) => makeSession(a.payload),
         endSession: () => null,
 
-        addTranscriptChunk: (state, action: PayloadAction<TranscriptChunk>) => {
-            state?.transcript.add(action.payload);
+        addTranscriptChunk: (s, a: PayloadAction<TranscriptChunk>) => {
+            s?.transcript.add(a.payload);
         },
 
-        addPromptRequest: (state, action: PayloadAction<PromptRequest>) => {
-            /*  fire side-effects elsewhere (RTK Query / thunk)  */
+        addPromptRequest: (_s, _a: PayloadAction<PromptRequest>) => {},
+
+        addPromptResponse: (s, a: PayloadAction<PromptResponse>) => {
+            if (s) s.promptHistory[a.payload.requestId] = a.payload;
         },
 
-        addPromptResponse: (state, action: PayloadAction<PromptResponse>) => {
-            if (state)
-                state.promptHistory[action.payload.requestId] = action.payload;
+        appendChat: (s, a: PayloadAction<ChatMessage>) => {
+            s?.chatLog.push(a.payload);
         },
     },
 });
@@ -45,6 +61,7 @@ export const {
     addTranscriptChunk,
     addPromptRequest,
     addPromptResponse,
+    appendChat,
 } = meetingSlice.actions;
 
 export default meetingSlice.reducer;
