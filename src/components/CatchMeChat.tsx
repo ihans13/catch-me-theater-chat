@@ -1,5 +1,6 @@
+
 import * as React from "react";
-import { X, Sparkles } from "lucide-react";
+import { X, Sparkles, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Chat states: 'idle' | 'loading' | 'summary' | 'error'
@@ -157,13 +158,13 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
         <button
           type="submit"
           disabled={!question.trim()}
-          className="rounded-r-md px-5 bg-indigo-500 hover:bg-indigo-600 text-white font-bold transition h-10"
+          className="rounded-r-md px-5 bg-indigo-500 hover:bg-indigo-600 text-white font-bold transition h-10 flex items-center justify-center"
           aria-label="Send"
           style={{
             boxShadow: "0 2px 8px 1px rgba(99,102,241,0.16)", // lavender shadow
           }}
         >
-          Send
+          <Send size={22} color="#a893fa" strokeWidth={2.2} />
         </button>
       </form>
     </aside>
