@@ -1,17 +1,8 @@
 
 import * as React from "react";
-import { Loader2, Sparkles, MessageSquare, CornerDownLeft, X } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import {
-  Drawer,
-  DrawerTrigger,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-  DrawerClose
-} from "@/components/ui/drawer";
+import { Sparkles, X } from "lucide-react";
 
 // Chat states: 'idle' | 'loading' | 'summary' | 'error'
 type ChatState = "idle" | "loading" | "summary" | "error";
@@ -63,119 +54,118 @@ export default function CatchMeChat() {
     setQuestion("");
   };
 
-  // Close/collapse with fade-out animation
-  const handleDrawerClose = () => {
-    setOpen(false);
-    setTimeout(() => {
-      setState("idle");
-      setSummary("");
-    }, 200); // matches CSS transition
-  };
-
-  // Focus input when opened and ready for question
   React.useEffect(() => {
     if (open && state === "summary" && inputRef.current) {
       inputRef.current.focus();
     }
   }, [open, state]);
 
+  // Sidebar dark theme
   return (
     <>
-      {/* Bottom right icon to open recap drawer */}
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerTrigger asChild>
-          <button
-            type="button"
-            onClick={handleRecap}
-            className="
-              fixed bottom-8 right-8 bg-gradient-to-r from-indigo-600 to-violet-500
-              text-white p-4 rounded-full shadow-xl flex items-center justify-center
-              border-2 border-indigo-400
-              hover:scale-105 active:scale-95 transition-all duration-200
-              z-50 cursor-pointer
-            "
-            aria-label="Need a recap?"
-          >
-            <Sparkles size={28} className="animate-pulse" />
-          </button>
-        </DrawerTrigger>
-        <DrawerContent className="sm:max-w-[420px] w-full">
-          <DrawerHeader>
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2 text-indigo-400 font-semibold text-lg">
-                <MessageSquare className="text-indigo-400" size={22} />
-                CatchMe Recap
-              </div>
-              <DrawerClose asChild>
-                <button
-                  aria-label="Close"
-                  className="text-indigo-300 hover:text-red-400 p-1 rounded transition"
-                  onClick={handleDrawerClose}
-                  type="button"
-                >
-                  <X size={22} />
-                </button>
-              </DrawerClose>
-            </div>
-          </DrawerHeader>
+      {/* Bottom Right Floating Button */}
+      <button
+        onClick={handleRecap}
+        className="
+          fixed bottom-8 right-8 bg-gradient-to-r from-indigo-600 to-violet-500
+          text-white p-4 rounded-full shadow-xl flex items-center justify-center
+          border-2 border-indigo-400 z-50 cursor-pointer hover:scale-105 active:scale-95 transition-all
+        "
+        aria-label="Need a recap?"
+      >
+        <Sparkles size={28} className="animate-pulse" />
+      </button>
 
-          <div className="px-4 py-3 text-white min-h-[64px] text-base">
-            {state === "loading" && (
-              <div className="flex items-center gap-2 text-indigo-200">
-                <Loader2 className="animate-spin" size={22} />
-                Generating a recap...
+      {/* Collapsible Right Sidebar */}
+      <Sheet open={open} onOpenChange={(newOpen) => { setOpen(newOpen); if (!newOpen) setState("idle"); }}>
+        <SheetContent
+          side="right"
+          className="max-w-full w-[400px] sm:w-[420px] bg-zinc-900 border-l border-zinc-800 flex flex-col px-0"
+        >
+          <SheetHeader className="flex flex-row items-center justify-between px-6 py-5">
+            <div className="flex items-center gap-3">
+              <Sparkles size={32} className="text-indigo-400" />
+              <span className="text-xl font-bold text-white">Catch Me Up</span>
+            </div>
+            <SheetClose asChild>
+              <button className="text-indigo-400 hover:text-red-400 transition-colors p-2 rounded" aria-label="Close sidebar">
+                <X size={24} />
+              </button>
+            </SheetClose>
+          </SheetHeader>
+          {/* Divider */}
+          <div className="px-6">
+            <div className="h-px w-full bg-zinc-800 mb-4" />
+          </div>
+          {/* Body */}
+          <div className="flex-1 px-6 pb-4 overflow-y-auto">
+            <div className="min-h-16 flex flex-col justify-start">
+              {state === "loading" && (
+                <div className="text-indigo-300">Generating a recap...</div>
+              )}
+              {state === "summary" && (
+                <span className="text-zinc-100 animate-fade-in">{summary}</span>
+              )}
+              {state === "error" && (
+                <span className="text-red-300">
+                  Sorry, couldn’t hear that—try again in a few seconds.
+                </span>
+              )}
+              {state === "idle" && (
+                <span className="text-zinc-400 italic">
+                  You’ll see summaries and AI catch-ups here.
+                </span>
+              )}
+            </div>
+            {(state === "summary" || state === "error") && (
+              <div className="flex flex-col gap-2 mt-4">
+                <div className="flex gap-1">
+                  <Button variant="outline" size="sm" 
+                    onClick={() => askAI("simplify")}
+                    className="text-xs flex-1 border-zinc-600 bg-zinc-800 hover:bg-zinc-700 text-zinc-100"
+                  >
+                    Simplify
+                  </Button>
+                  <Button variant="outline" size="sm"
+                    onClick={() => askAI("reiterate")}
+                    className="text-xs flex-1 border-zinc-600 bg-zinc-800 hover:bg-zinc-700 text-zinc-100"
+                  >
+                    Reiterate
+                  </Button>
+                  <Button variant="outline" size="sm"
+                    onClick={() => askAI("clarify")}
+                    className="text-xs flex-1 border-zinc-600 bg-zinc-800 hover:bg-zinc-700 text-zinc-100"
+                  >
+                    Clarify
+                  </Button>
+                </div>
               </div>
-            )}
-            {state === "summary" && (
-              <span className="animate-fade-in">{summary}</span>
-            )}
-            {state === "error" && (
-              <span className="text-red-300">
-                Sorry, couldn’t hear that—try again in a few seconds.
-              </span>
-            )}
-            {state === "idle" && (
-              <span className="text-zinc-300">
-                (Ask for a recap of what just happened!)
-              </span>
             )}
           </div>
-
-          {(state === "summary" || state === "error") && (
-            <div className="flex flex-col gap-1 pb-3 px-3">
-              <div className="flex gap-1 justify-between">
-                <Button variant="outline" size="sm" onClick={() => askAI("simplify")} className="text-xs flex-1 border-zinc-600 bg-zinc-900 hover:bg-zinc-800">
-                  Simplify
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => askAI("reiterate")} className="text-xs flex-1 border-zinc-600 bg-zinc-900 hover:bg-zinc-800">
-                  Reiterate
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => askAI("clarify")} className="text-xs flex-1 border-zinc-600 bg-zinc-900 hover:bg-zinc-800">
-                  Clarify
-                </Button>
-              </div>
-              <form className="flex w-full mt-2" onSubmit={handleCustomQuestion}>
-                <input
-                  ref={inputRef}
-                  value={question}
-                  onChange={e => setQuestion(e.target.value)}
-                  disabled={state === "loading"}
-                  placeholder="Ask anything about the last minute…"
-                  className="flex-1 rounded-l-lg bg-zinc-900 px-3 py-2 text-white placeholder:text-zinc-400 outline-none border border-zinc-700 border-r-0 focus:ring-2 focus:ring-indigo-500 text-sm"
-                />
-                <button
-                  type="submit"
-                  disabled={!question.trim() || state === "loading"}
-                  className="rounded-r-lg px-3 bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition"
-                  aria-label="Send"
-                >
-                  <CornerDownLeft size={16} />
-                </button>
-              </form>
-            </div>
-          )}
-        </DrawerContent>
-      </Drawer>
+          {/* Input Area */}
+          <form
+            className="border-t border-zinc-800 px-4 py-3 bg-zinc-950 flex"
+            onSubmit={handleCustomQuestion}
+          >
+            <input
+              ref={inputRef}
+              value={question}
+              onChange={e => setQuestion(e.target.value)}
+              disabled={state === "loading"}
+              placeholder="Ask for a summary, next steps…"
+              className="flex-1 rounded-l-md bg-zinc-900 px-3 py-2 text-white placeholder:text-zinc-400 outline-none border border-zinc-800 border-r-0 focus:ring-2 focus:ring-indigo-500 text-sm"
+            />
+            <button
+              type="submit"
+              disabled={!question.trim() || state === "loading"}
+              className="rounded-r-md px-5 bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition"
+              aria-label="Send"
+            >
+              Send
+            </button>
+          </form>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
