@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,6 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
 
   // For "Simplify", "Reiterate", "Elaborate"
   const askAI = (type: "simplify" | "reiterate" | "elaborate") => {
-    // No longer needed, so we just set state to idle
     setState("idle");
   };
 
@@ -55,11 +55,10 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
 
   if (!open) return null;
 
-  // Custom lavender gradient hover overlay for buttons
-  const lavenderGradient =
-    "hover:shadow-lg hover:bg-gradient-to-r hover:from-indigo-500/80 hover:to-violet-400/80 hover:border-indigo-400 transition-all duration-200";
-  const buttonBase =
-    "text-xs flex-1 border-zinc-600 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 relative";
+  // Consistent button style for all action buttons
+  // text-base font-medium, no color overrides, bg/bg hover handled as before
+  const consistentButton =
+    "flex-1 text-base font-medium rounded-md border-zinc-600 bg-zinc-800 text-zinc-100 transition-all duration-200 hover:shadow-lg hover:bg-gradient-to-r hover:from-indigo-500/80 hover:to-violet-400/80 hover:border-indigo-400";
 
   return (
     <aside
@@ -93,12 +92,12 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
       {/* Body */}
       <div className="flex-auto px-6 pb-4 overflow-y-auto min-h-16 flex flex-col justify-start">
         <div className="flex flex-col gap-6 mt-8">
-          <div className="flex gap-8"> {/* Increased gap between buttons */}
+          <div className="flex gap-3"> {/* Reduced gap between buttons */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => askAI("simplify")}
-              className={`${buttonBase} ${lavenderGradient}`}
+              className={consistentButton}
             >
               Simplify
             </Button>
@@ -106,7 +105,7 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
               variant="outline"
               size="sm"
               onClick={() => askAI("reiterate")}
-              className={`${buttonBase} ${lavenderGradient}`}
+              className={consistentButton}
             >
               Reiterate
             </Button>
@@ -114,15 +113,15 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
               variant="outline"
               size="sm"
               onClick={() => askAI("elaborate")}
-              className={`${buttonBase} ${lavenderGradient}`}
+              className={consistentButton}
             >
               Elaborate
             </Button>
           </div>
           <Button
             variant="outline"
-            size="default"
-            className="mt-2 border-zinc-600 bg-zinc-800 text-zinc-100 text-sm font-semibold py-2 italic transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-indigo-500/80 hover:to-violet-400/80 hover:border-indigo-400"
+            size="sm"
+            className={consistentButton + " mt-2"}
             onClick={handleWonderingClick}
           >
             I&apos;m wondering about...
