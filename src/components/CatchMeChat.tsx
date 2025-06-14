@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { X, Sparkles, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -127,19 +126,39 @@ export default function CatchMeChat({ open, onOpenChange }: CatchMeChatProps) {
             I&apos;m wondering about...
           </Button>
         </div>
-        {/* User's custom questions appear here */}
-        {customQuestions.length > 0 && (
-          <div className="mt-8 flex flex-col gap-3">
-            {customQuestions.map((q, idx) => (
-              <div
-                key={idx}
-                className="rounded bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-100 px-4 py-2 border border-indigo-400/30 text-sm"
-              >
-                {q}
-              </div>
-            ))}
-          </div>
-        )}
+        {/* User's and chatbot's messages */}
+        <div className="mt-8 flex flex-col gap-3">
+          {/* User messages (left) */}
+          {customQuestions.map((q, idx) => (
+            <div
+              key={`user-${idx}`}
+              className="
+                self-start max-w-[70%]
+                rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-900
+                border border-indigo-400/30 text-zinc-400
+                px-4 py-2 text-sm
+              "
+              style={{ borderRadius: "1.2rem" }}
+            >
+              {q}
+            </div>
+          ))}
+          {/* Chatbot message (right) */}
+          {state === "summary" && (
+            <div
+              className="
+                self-end max-w-[70%] 
+                rounded-2xl bg-gradient-to-br from-indigo-600/80 to-purple-600/80
+                border border-indigo-400/60 text-zinc-400
+                px-4 py-2 text-sm
+                shadow-md
+              "
+              style={{ borderRadius: "1.2rem" }}
+            >
+              {demoSummary}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Chat input bar pinned to bottom, always visible */}
